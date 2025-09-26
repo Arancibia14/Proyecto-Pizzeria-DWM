@@ -1,0 +1,255 @@
+/* Estilos personalizados para la Pizzería */
+
+/* Variables CSS para colores consistentes */
+:root {
+  --primary-color: #dc3545;
+  --secondary-color: #6c757d;
+  --success-color: #198754;
+  --warning-color: #ffc107;
+  --danger-color: #dc3545;
+  --light-color: #f8f9fa;
+  --dark-color: #212529;
+}
+
+/* Reset y estilos base */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  line-height: 1.6;
+  color: var(--dark-color);
+}
+
+/* Navbar personalizado */
+.navbar-brand {
+  font-size: 1.5rem;
+}
+
+.navbar-dark .navbar-nav .nav-link {
+  color: rgba(255, 255, 255, 0.9);
+  transition: color 0.3s ease;
+}
+
+.navbar-dark .navbar-nav .nav-link:hover {
+  color: white;
+}
+
+/* Hero Section */
+.hero-section {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+}
+
+/* Cards */
+.card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+/* Pizza Cards en el catálogo */
+.pizza-card {
+  cursor: pointer;
+}
+
+.pizza-card:hover {
+  border-color: var(--primary-color);
+}
+
+.pizza-card img {
+  height: 200px;
+  object-fit: cover;
+}
+
+/* Formularios */
+.form-control:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+}
+
+.form-check-input:checked {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+/* Botones personalizados */
+.btn-primary {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+  transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+  background-color: #c82333;
+  border-color: #bd2130;
+  transform: translateY(-2px);
+}
+
+/* Estados de formularios */
+.register-form,
+.login-form {
+  transition: opacity 0.3s ease;
+}
+
+.fade-out {
+  opacity: 0;
+}
+
+.fade-in {
+  opacity: 1;
+}
+
+/* Alertas personalizadas */
+.alert {
+  border: none;
+  border-radius: 10px;
+}
+
+/* Badges personalizados */
+.badge {
+  font-size: 0.8em;
+  padding: 0.5em 0.8em;
+}
+
+/* Tablas responsivas */
+.table-responsive {
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.table th {
+  border-top: none;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.9em;
+  letter-spacing: 0.5px;
+}
+
+/* Paginación */
+.pagination .page-link {
+  color: var(--primary-color);
+  border-color: #dee2e6;
+}
+
+.pagination .page-item.active .page-link {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+/* Carrito */
+.cart-items {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+/* Estados de carga */
+.loading {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+/* Animaciones */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in-animation {
+  animation: fadeIn 0.5s ease-out;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .hero-section h1 {
+    font-size: 2rem;
+  }
+
+  .card-body {
+    padding: 1.5rem;
+  }
+
+  .btn-lg {
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+  }
+}
+
+/* Grid System personalizado */
+.custom-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+/* Flexbox utilities adicionales */
+.flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Box Model utilities */
+.p-custom {
+  padding: 2rem;
+}
+
+.m-custom {
+  margin: 2rem;
+}
+
+/* Estados hover para interactividad */
+.hover-shadow:hover {
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.3s ease;
+}
+
+/* Footer */
+footer {
+  margin-top: auto;
+}
+
+/* Utilidades de texto */
+.text-balance {
+  text-wrap: balance;
+}
+
+/* Estados de validación personalizados */
+.is-invalid {
+  border-color: var(--danger-color);
+}
+
+.is-valid {
+  border-color: var(--success-color);
+}
+
+/* Spinner de carga */
+.spinner-custom {
+  width: 2rem;
+  height: 2rem;
+  border: 0.25em solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: spinner-border 0.75s linear infinite;
+}
+
+@keyframes spinner-border {
+  to {
+    transform: rotate(360deg);
+  }
+}

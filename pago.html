@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pagar - Pizzería</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/styles.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container-fluid min-vh-100 d-flex align-items-center justify-content-center bg-light">
+        <div class="row w-100 justify-content-center">
+            <div class="col-md-8 col-lg-6">
+                <div class="card shadow-lg border-0">
+                    <div class="card-header bg-success text-white text-center py-3">
+                        <h3 class="mb-0">Pagar</h3>
+                    </div>
+                    <div class="card-body p-4">
+                        <!-- Resumen del pedido -->
+                        <div class="mb-4">
+                            <div class="row mb-2">
+                                <div class="col-8">1) Pizza Margarita (L):</div>
+                                <div class="col-4 text-end">$8.000</div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-8">2) Coca-cola 3L:</div>
+                                <div class="col-4 text-end">$3.000</div>
+                            </div>
+                            <hr>
+                            <div class="row fw-bold fs-5">
+                                <div class="col-8">TOTAL</div>
+                                <div class="col-4 text-end">$11.000</div>
+                            </div>
+                        </div>
+
+                        <!-- Botones de pago -->
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-primary btn-lg" onclick="pagarWebpay()">
+                                Pagar con Webpay
+                            </button>
+                            <button class="btn btn-outline-danger" onclick="cancelar()">
+                                Cancelar
+                            </button>
+                        </div>
+
+                        <!-- Estados de pago -->
+                        <div id="pago-exitoso" class="mt-4" style="display: none;">
+                            <div class="alert alert-success text-center">
+                                <h5 class="mb-2">Pago exitoso</h5>
+                                <p class="mb-0">Pedido confirmado</p>
+                            </div>
+                            <div class="d-grid">
+                                <button class="btn btn-success" onclick="irSeguimiento()">
+                                    Ver seguimiento
+                                </button>
+                            </div>
+                        </div>
+
+                        <div id="pago-rechazado" class="mt-4" style="display: none;">
+                            <div class="alert alert-danger text-center">
+                                <h5 class="mb-2">Pago rechazado</h5>
+                                <p class="mb-0">Reintentar</p>
+                            </div>
+                            <div class="d-grid">
+                                <button class="btn btn-primary" onclick="reintentar()">
+                                    Intentar nuevamente
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function pagarWebpay() {
+            // Simular proceso de pago
+            const random = Math.random();
+            
+            setTimeout(() => {
+                if (random > 0.2) {
+                    document.getElementById('pago-exitoso').style.display = 'block';
+                    document.getElementById('pago-rechazado').style.display = 'none';
+                } else {
+                    document.getElementById('pago-exitoso').style.display = 'none';
+                    document.getElementById('pago-rechazado').style.display = 'block';
+                }
+            }, 2000);
+        }
+
+        function cancelar() {
+            window.location.href = 'carrito.html';
+        }
+
+        function irSeguimiento() {
+            window.location.href = 'seguimiento.html';
+        }
+
+        function reintentar() {
+            document.getElementById('pago-rechazado').style.display = 'none';
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dirección de Entrega - Pizzería</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/styles.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container-fluid min-vh-100 d-flex align-items-center justify-content-center bg-light">
+        <div class="row w-100 justify-content-center">
+            <div class="col-md-8 col-lg-6">
+                <div class="card shadow-lg border-0">
+                    <div class="card-header bg-primary text-white text-center py-3">
+                        <h3 class="mb-0">Dirección de entrega y cobertura</h3>
+                    </div>
+                    <div class="card-body p-4">
+                        <!-- Dirección actual -->
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Dirección:</label>
+                            <p class="fs-5 mb-3">Evergreen 742</p>
+                            
+                            <button class="btn btn-outline-primary mb-3" onclick="validarCobertura()">
+                                Validar cobertura
+                            </button>
+                        </div>
+
+                        <!-- Estado de cobertura -->
+                        <div id="cobertura-info" class="mb-4" style="display: none;">
+                            <div class="alert alert-success">
+                                <strong>Cobertura disponible</strong> → Tarifa: $2.000
+                            </div>
+                        </div>
+
+                        <!-- Error de cobertura -->
+                        <div id="error-cobertura" class="mb-4" style="display: none;">
+                            <div class="alert alert-danger">
+                                <strong>Fuera de zona para reparto</strong>
+                            </div>
+                        </div>
+
+                        <!-- Direcciones guardadas -->
+                        <div class="mb-4">
+                            <h5 class="mb-3">Direcciones guardadas</h5>
+                            <div class="border rounded p-3">
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="radio" name="direccion" id="casa" checked>
+                                    <label class="form-check-label" for="casa">
+                                        🏠 Casa - Evergreen 742
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Botón seleccionar -->
+                        <div class="d-grid">
+                            <button class="btn btn-primary btn-lg" onclick="seleccionarDireccion()">
+                                Seleccionar dirección
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function validarCobertura() {
+            // Simular validación
+            const random = Math.random();
+            
+            if (random > 0.3) {
+                document.getElementById('cobertura-info').style.display = 'block';
+                document.getElementById('error-cobertura').style.display = 'none';
+            } else {
+                document.getElementById('cobertura-info').style.display = 'none';
+                document.getElementById('error-cobertura').style.display = 'block';
+            }
+        }
+
+        function seleccionarDireccion() {
+            window.location.href = 'pago.html';
+        }
+    </script>
+</body>
+</html>

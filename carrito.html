@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Carrito - Pizzería</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="index.html">🍕 Pizzería</a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="catalogo.html">← Continuar Comprando</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container my-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card shadow-lg border-0">
+                    <div class="card-body p-5">
+                        <h1 class="text-center mb-4 fw-bold text-primary">Mi carrito</h1>
+                        
+                        <!-- Items del carrito -->
+                        <div class="cart-items">
+                            <div class="d-flex justify-content-between align-items-center border-bottom pb-3 mb-3">
+                                <div>
+                                    <h5 class="mb-1">1) Pizza Margarita (L)</h5>
+                                    <small class="text-muted">Masa piedra, queso extra</small>
+                                </div>
+                                <div class="text-end">
+                                    <span class="fw-bold">$8.000</span>
+                                    <button class="btn btn-sm btn-outline-danger ms-2" onclick="removeItem(1)">×</button>
+                                </div>
+                            </div>
+                            
+                            <div class="d-flex justify-content-between align-items-center border-bottom pb-3 mb-3">
+                                <div>
+                                    <h5 class="mb-1">2) Coca-cola 3L</h5>
+                                    <small class="text-muted">Bebida</small>
+                                </div>
+                                <div class="text-end">
+                                    <span class="fw-bold">$3.000</span>
+                                    <button class="btn btn-sm btn-outline-danger ms-2" onclick="removeItem(2)">×</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <!-- Total -->
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h4 class="fw-bold">TOTAL</h4>
+                            <h4 class="fw-bold text-primary" id="cartTotal">$11.000</h4>
+                        </div>
+
+                        <!-- Botón continuar compra -->
+                        <div class="text-center mb-3">
+                            <button class="btn btn-primary btn-lg px-5" onclick="window.location.href='direccion-entrega.html'">Continuar compra</button>
+                        </div>
+
+                        <!-- Mensaje de eliminación automática -->
+                        <div class="alert alert-info text-center" role="alert">
+                            <small>Se borra después de 7 días</small>
+                        </div>
+
+                        <!-- Estado carrito vacío -->
+                        <div id="emptyCartState" class="text-center d-none">
+                            <div class="py-5">
+                                <div class="display-1 text-muted mb-3">🛒</div>
+                                <h3 class="text-muted">Tu carrito está vacío</h3>
+                                <p class="text-muted">Agrega algunas pizzas deliciosas</p>
+                                <a href="catalogo.html" class="btn btn-primary btn-lg">Ver Catálogo</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/carrito.js"></script>
+</body>
+</html>

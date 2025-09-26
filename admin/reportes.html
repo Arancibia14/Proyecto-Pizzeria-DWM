@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reportes de Ventas - Pizzería Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+    <!-- Navbar Admin -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="../index.html">🍕 Pizzería Admin</a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="panel-cocina.html">Cocina</a>
+                <a class="nav-link active" href="reportes.html">Reportes</a>
+                <a class="nav-link" href="incidentes.html">Incidentes</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container my-5">
+        <div class="card shadow-lg border-0">
+            <div class="card-body p-4">
+                <h1 class="text-center mb-4 fw-bold text-dark">Reporte ventas</h1>
+                
+                <!-- Filtros -->
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        <label class="form-label">Desde</label>
+                        <input type="date" class="form-control" id="dateFrom">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Hasta</label>
+                        <input type="date" class="form-control" id="dateTo">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Método de pago:</label>
+                        <select class="form-select" id="paymentMethod">
+                            <option value="todos">Todos</option>
+                            <option value="efectivo">Efectivo</option>
+                            <option value="webpay">Webpay</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Estado:</label>
+                        <select class="form-select" id="orderStatus">
+                            <option value="todos">Todos</option>
+                            <option value="confirmado">Confirmado</option>
+                            <option value="anulado">Anulado</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <button class="btn btn-primary" id="applyFilters">Aplicar filtros</button>
+                </div>
+
+                <!-- Resultados -->
+                <div class="mb-3">
+                    <h5>Resultados</h5>
+                </div>
+
+                <div class="table-responsive mb-4">
+                    <table class="table table-striped">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>N° orden</th>
+                                <th>Ingreso</th>
+                                <th>Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>001</td>
+                                <td>$12.000</td>
+                                <td><span class="badge bg-success">Confirmado</span></td>
+                            </tr>
+                            <tr>
+                                <td>002</td>
+                                <td>$10.000</td>
+                                <td><span class="badge bg-danger">Anulado</span></td>
+                            </tr>
+                            <tr>
+                                <td colspan="3" class="text-center text-muted">...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Totales -->
+                <div class="row mb-4">
+                    <div class="col-md-4">
+                        <div class="card bg-light">
+                            <div class="card-body text-center">
+                                <h6>Totales:</h6>
+                                <p class="mb-1">Órdenes: <strong>99</strong></p>
+                                <p class="mb-1">Ingresos: <strong>$99.999</strong></p>
+                                <p class="mb-0">Ticket promedio: <strong>$9.999</strong></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Exportar -->
+                <div class="text-center">
+                    <button class="btn btn-success" id="exportCSV">Exportar CSV</button>
+                </div>
+
+                <!-- Estado de error -->
+                <div id="dateRangeError" class="alert alert-danger d-none mt-3" role="alert">
+                    <strong>Rango de fechas inválido</strong>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../js/admin-reportes.js"></script>
+</body>
+</html>
