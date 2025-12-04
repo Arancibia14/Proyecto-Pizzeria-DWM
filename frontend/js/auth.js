@@ -79,49 +79,46 @@ function handleRegister(e) {
 }
 
 // Manejo del login
-function handleLogin(e) {
-  e.preventDefault()
+async function handleLogin(e) {
+  e.preventDefault();
 
-  const email = document.getElementById("loginEmail").value
-  const password = document.getElementById("loginPassword").value
-  const submitBtn = e.target.querySelector('button[type="submit"]')
+  const email = document.getElementById("loginEmail").value;
+  const password = document.getElementById("loginPassword").value;
+  const submitBtn = e.target.querySelector('button[type="submit"]');
 
   // Limpiar errores previos
-  clearFieldError("loginPassword")
+  clearFieldError("loginPassword");
+  showLoading(submitBtn);
 
-  // Validaciones básicas
-  if (!pizzeriaApp.validateEmail(email)) {
-    showFieldError("loginEmail", "Email inválido")
-    return
-  }
+  try {
+    // LLAMADA AL BACKEND PYTHON
+    const response = await fetch('http://127.0.0.1:8000/api/auth/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ email: email, password: password })
+    });
 
-  // Mostrar estado de carga
-  showLoading(submitBtn)
+    const data = await response.json();
 
-  // Simular login
-  setTimeout(() => {
-    hideLoading(submitBtn)
-
-    // Simular validación de credenciales
-    const registeredUser = JSON.parse(localStorage.getItem("registeredUser") || "{}")
-    const isValidCredentials = email === registeredUser.email && password.length >= 6
-
-    if (!isValidCredentials) {
-      showFieldError("loginPassword", "Credenciales incorrectas")
+    if (response.ok) {
+      // Login Exitoso
+      showLoginSuccessState();
+      // Guardar token real
+      localStorage.setItem("userToken", data.token);
     } else {
-      // Login exitoso
-      showLoginSuccessState()
-
-      // Guardar sesión
-      const sessionData = {
-        email: email,
-        loginAt: new Date().toISOString(),
-      }
-      localStorage.setItem("userSession", JSON.stringify(sessionData))
+      // Error desde el backend (ej: credenciales malas)
+      showFieldError("loginPassword", data.detail || "Error al iniciar sesión");
     }
-  }, 1500)
-}
 
+  } catch (error) {
+    console.error("Error de conexión:", error);
+    showFieldError("loginPassword", "No se pudo conectar con el servidor");
+  } finally {
+    hideLoading(submitBtn);
+  }
+}
 // Mostrar estado de éxito en registro
 function showSuccessState() {
   const form = document.querySelector(".register-form")
