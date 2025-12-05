@@ -25,7 +25,7 @@ class CategoriaPizza(str, Enum):
     GOURMET = "Gourmet"
     PROMOCION = "Promoción"
 
-# --- SCHEMAS (Tus cajitas) ---
+# --- SCHEMAS ---
 
 class UsuarioLogin(BaseModel):
     email: str

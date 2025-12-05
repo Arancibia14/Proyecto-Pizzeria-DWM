@@ -1,7 +1,7 @@
 import motor.motor_asyncio
 
-# 1. Cadena de conexión (Localhost por defecto)
-MONGO_DETAILS = "mongodb://localhost:27017"
+# 1. Cadena de conexión a MongoDB
+MONGO_DETAILS = "mongodb+srv://admin:m1a4r0t8@cluster0.gi2q9ja.mongodb.net/?appName=Cluster0"
 
 client = motor.motor_asyncio.AsyncIOMotorClient(MONGO_DETAILS)
 
