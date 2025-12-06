@@ -1,201 +1,89 @@
-// Manejo de autenticación - Registro y Login
-
-// Declare pizzeriaApp variable
-const pizzeriaApp = {
-  validateEmail: (email) => {
-    // Simple email validation
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
-  },
-  validatePassword: (password) => {
-    // Simple password validation (at least 6 characters)
-    return password.length >= 6
-  },
-}
-
 document.addEventListener("DOMContentLoaded", () => {
-  initializeAuthForms()
-})
+    const loginForm = document.getElementById("loginForm");
+    const registerForm = document.getElementById("registerForm");
 
-function initializeAuthForms() {
-  // Formulario de registro
-  const registerForm = document.getElementById("registerForm")
-  if (registerForm) {
-    registerForm.addEventListener("submit", handleRegister)
-  }
+    if (loginForm) loginForm.addEventListener("submit", handleLogin);
+    if (registerForm) registerForm.addEventListener("submit", handleRegister);
+});
 
-  // Formulario de login
-  const loginForm = document.getElementById("loginForm")
-  if (loginForm) {
-    loginForm.addEventListener("submit", handleLogin)
-  }
-}
-
-// Manejo del registro
-function handleRegister(e) {
-  e.preventDefault()
-
-  const email = document.getElementById("email").value
-  const password = document.getElementById("password").value
-  const submitBtn = e.target.querySelector('button[type="submit"]')
-
-  // Limpiar errores previos
-  clearFieldError("email")
-
-  // Validaciones
-  if (!pizzeriaApp.validateEmail(email)) {
-    showFieldError("email", "Error email inválido")
-    return
-  }
-
-  if (!pizzeriaApp.validatePassword(password)) {
-    showFieldError("password", "La contraseña debe tener al menos 6 caracteres")
-    return
-  }
-
-  // Mostrar estado de carga
-  showLoading(submitBtn)
-
-  // Simular registro (en una app real, esto sería una llamada a la API)
-  setTimeout(() => {
-    hideLoading(submitBtn)
-
-    // Simular diferentes escenarios
-    const isEmailTaken = email === "test@test.com"
-
-    if (isEmailTaken) {
-      showFieldError("email", "Error email inválido")
-    } else {
-      // Registro exitoso
-      showSuccessState()
-
-      // Guardar usuario en localStorage (simulación)
-      const userData = {
-        email: email,
-        registeredAt: new Date().toISOString(),
-      }
-      localStorage.setItem("registeredUser", JSON.stringify(userData))
-    }
-  }, 1500)
-}
-
-// Manejo del login
+// LOGIN REAL
 async function handleLogin(e) {
-  e.preventDefault();
+    e.preventDefault();
+    const email = document.getElementById("loginEmail").value;
+    const password = document.getElementById("loginPassword").value;
+    const btn = e.target.querySelector("button");
+    const errorDiv = document.getElementById("loginError");
 
-  const email = document.getElementById("loginEmail").value;
-  const password = document.getElementById("loginPassword").value;
-  const submitBtn = e.target.querySelector('button[type="submit"]');
+    // UI Carga
+    btn.disabled = true;
+    btn.textContent = "Verificando...";
+    if(errorDiv) errorDiv.style.display = "none";
 
-  // Limpiar errores previos
-  clearFieldError("loginPassword");
-  showLoading(submitBtn);
+    try {
+        const response = await fetch(`${API_URL}/api/auth/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
+        });
 
-  try {
-    // LLAMADA AL BACKEND PYTHON
-    const response = await fetch('http://127.0.0.1:8000/api/auth/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ email: email, password: password })
-    });
+        const data = await response.json();
 
-    const data = await response.json();
-
-    if (response.ok) {
-      // Login Exitoso
-      showLoginSuccessState();
-      // Guardar token real
-      localStorage.setItem("userToken", data.token);
-    } else {
-      // Error desde el backend (ej: credenciales malas)
-      showFieldError("loginPassword", data.detail || "Error al iniciar sesión");
+        if (response.ok) {
+            // Guardar token y usuario
+            localStorage.setItem("token", data.access_token || data.token);
+            localStorage.setItem("user", JSON.stringify(data.user || { email }));
+            
+            // Redirigir
+            window.location.href = "catalogo.html";
+        } else {
+            throw new Error(data.detail || "Credenciales incorrectas");
+        }
+    } catch (error) {
+        console.error(error);
+        if(errorDiv) {
+            errorDiv.style.display = "block";
+            errorDiv.textContent = error.message;
+        } else {
+            alert(error.message);
+        }
+    } finally {
+        btn.disabled = false;
+        btn.textContent = "Entrar";
     }
-
-  } catch (error) {
-    console.error("Error de conexión:", error);
-    showFieldError("loginPassword", "No se pudo conectar con el servidor");
-  } finally {
-    hideLoading(submitBtn);
-  }
-}
-// Mostrar estado de éxito en registro
-function showSuccessState() {
-  const form = document.querySelector(".register-form")
-  const successState = document.getElementById("successState")
-
-  if (form && successState) {
-    form.classList.add("d-none")
-    successState.classList.remove("d-none")
-    successState.classList.add("fade-in-animation")
-  }
 }
 
-// Mostrar estado de éxito en login
-function showLoginSuccessState() {
-  const form = document.querySelector(".login-form")
-  const successState = document.getElementById("loginSuccessState")
+// REGISTRO REAL (Ahora sí guarda en MongoDB)
+async function handleRegister(e) {
+    e.preventDefault();
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+    // Nombre por defecto si el formulario no lo tiene
+    const nombre = "Cliente Nuevo"; 
+    
+    const btn = e.target.querySelector("button");
+    btn.disabled = true;
+    btn.textContent = "Registrando...";
 
-  if (form && successState) {
-    form.classList.add("d-none")
-    successState.classList.remove("d-none")
-    successState.classList.add("fade-in-animation")
+    try {
+        const response = await fetch(`${API_URL}/api/auth/register`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password, nombre })
+        });
 
-    // Redireccionar después de 2 segundos
-    setTimeout(() => {
-      window.location.href = "catalogo.html"
-    }, 2000)
-  }
-}
-
-// Funciones de utilidad para errores
-function showFieldError(fieldId, message) {
-  const field = document.getElementById(fieldId)
-  const errorDiv = document.getElementById(fieldId + "Error") || field.nextElementSibling
-
-  field.classList.add("is-invalid")
-  if (errorDiv && errorDiv.classList.contains("invalid-feedback")) {
-    errorDiv.textContent = message
-    errorDiv.style.display = "block"
-  }
-}
-
-function clearFieldError(fieldId) {
-  const field = document.getElementById(fieldId)
-  const errorDiv = document.getElementById(fieldId + "Error") || field.nextElementSibling
-
-  field.classList.remove("is-invalid")
-  if (errorDiv && errorDiv.classList.contains("invalid-feedback")) {
-    errorDiv.textContent = ""
-    errorDiv.style.display = "none"
-  }
-}
-
-function showLoading(element) {
-  const originalText = element.textContent
-  element.textContent = "Cargando..."
-  element.disabled = true
-  element.dataset.originalText = originalText
-}
-
-function hideLoading(element) {
-  element.textContent = element.dataset.originalText || "Enviar"
-  element.disabled = false
-}
-
-// Verificar si el usuario está logueado
-function isUserLoggedIn() {
-  return localStorage.getItem("userSession") !== null
-}
-
-// Cerrar sesión
-function logout() {
-  localStorage.removeItem("userSession")
-  window.location.href = "index.html"
-}
-
-// Obtener datos del usuario actual
-function getCurrentUser() {
-  const sessionData = localStorage.getItem("userSession")
-  return sessionData ? JSON.parse(sessionData) : null
+        if (response.ok) {
+            // Éxito: Ocultar form registro y mostrar mensaje
+            document.getElementById("registerForm").classList.add("d-none");
+            document.getElementById("successState").classList.remove("d-none");
+        } else {
+            const data = await response.json();
+            throw new Error(data.detail || "Error al registrar usuario");
+        }
+    } catch (error) {
+        console.error(error);
+        alert("Error: " + error.message);
+    } finally {
+        btn.disabled = false;
+        btn.textContent = "Registrar";
+    }
 }
