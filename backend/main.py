@@ -1,7 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from database import pizza_collection # Solo importamos lo necesario para el startup
-from routes import router # <--- Importamos tus nuevas rutas
+from database import pizza_collection 
+from routes import router as products_router 
+from orders import router as orders_router # <--- IMPORTAMOS EL NUEVO ARCHIVO
 
 app = FastAPI()
 
@@ -15,17 +16,18 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# --- CONECTAR EL ROUTER ---
-# Aquí le decimos al servidor: "Usa las rutas que definimos en el otro archivo"
-app.include_router(router)
+# --- CONECTAR LOS ROUTERS ---
+app.include_router(products_router) # Tus rutas de productos/auth
+app.include_router(orders_router)   # <--- ACTIVAMOS LA RUTA DE PEDIDOS
 
 @app.get("/")
 def home():
-    return {"mensaje": "API Pizzería La Fornacce - Backend Estructurado 🏗️"}
+    return {"mensaje": "API Pizzería La Fornacce - Backend Funcionando 🍕"}
 
 # --- EVENTO DE INICIO (Base de Datos) ---
 @app.on_event("startup")
 async def startup_db_client():
+    # Verificamos si hay pizzas, si no, creamos las base
     count = await pizza_collection.count_documents({})
     if count == 0:
         pizzas_iniciales = [
@@ -34,4 +36,6 @@ async def startup_db_client():
             {"_id": 3, "nombre": "Chicken BBQ", "categoria": "Gourmet", "precio": 9000, "descripcion": "Pollo y salsa BBQ", "disponible": True}
         ]
         await pizza_collection.insert_many(pizzas_iniciales)
-        print("☁️ Conexión a Atlas exitosa. Datos iniciales verificados.")
+        print("☁️ Pizzas iniciales creadas.")
+    
+    print("✅ Conexión a MongoDB Atlas exitosa.")

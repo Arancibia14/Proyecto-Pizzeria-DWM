@@ -8,6 +8,17 @@
     <link href="../css/styles.css" rel="stylesheet">
 </head>
 <body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="../index.html">🍕 Admin</a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="panel-cocina.html">Cocina</a>
+                <a class="nav-link" href="reportes.html">Reportes</a>
+                <a class="nav-link" href="incidentes.html">Incidentes</a>
+            </div>
+        </div>
+    </nav>
+
     <div class="container-fluid min-vh-100 d-flex align-items-center justify-content-center bg-light">
         <div class="row w-100 justify-content-center">
             <div class="col-md-8 col-lg-6">
@@ -16,50 +27,43 @@
                         <h3 class="mb-0">Asignación de repartidor</h3>
                     </div>
                     <div class="card-body p-4">
-                        <div class="mb-3">
-                            <strong>Pedido N°:</strong> 001
-                        </div>
                         
                         <div class="mb-4">
+                            <label class="form-label fw-bold">Seleccionar Pedido Pendiente:</label>
+                            <select class="form-select" id="selectorPedidoAsignar" onchange="cargarDatosAsignacion()">
+                                <option value="">Cargando pedidos...</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
                             <strong>Estado actual:</strong> 
-                            <span class="badge bg-success">Listo para reparto</span>
+                            <span class="badge bg-secondary" id="estadoPedido">...</span>
+                        </div>
+                        <div class="mb-3">
+                            <strong>Dirección:</strong> 
+                            <span id="direccionPedido">...</span>
                         </div>
 
                         <div class="mb-4">
-                            <h5 class="mb-3">Repartidor</h5>
+                            <h5 class="mb-3">Repartidor Disponible</h5>
                             <div class="border rounded p-3">
                                 <div class="form-check mb-2">
-                                    <input class="form-check-input" type="radio" name="repartidor" id="carlos" value="carlos">
-                                    <label class="form-check-label" for="carlos">
-                                        ☐ Carlos: +56984673210
-                                    </label>
+                                    <input class="form-check-input" type="radio" name="repartidor" id="carlos" value="Carlos">
+                                    <label class="form-check-label" for="carlos">☐ Carlos: +56984673210</label>
                                 </div>
                                 <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="repartidor" id="juana" value="juana">
-                                    <label class="form-check-label" for="juana">
-                                        ☐ Juana: +56912345678
-                                    </label>
+                                    <input class="form-check-input" type="radio" name="repartidor" id="juana" value="Juana">
+                                    <label class="form-check-label" for="juana">☐ Juana: +56912345678</label>
                                 </div>
                             </div>
                         </div>
 
                         <div class="d-grid mb-3">
-                            <button class="btn btn-primary btn-lg" onclick="asignarRepartidor()">
-                                Asignar
-                            </button>
+                            <button class="btn btn-primary btn-lg" onclick="asignarRepartidor()">Asignar</button>
                         </div>
 
                         <div id="repartidor-asignado" class="alert alert-success" style="display: none;">
-                            <strong>Repartidor asignado</strong>
-                        </div>
-
-                        <div id="reasignacion" class="alert alert-warning" style="display: none;">
-                            <strong>Se reasigna otro repartidor y se informa a cliente</strong>
-                        </div>
-
-                        <div id="entrega-confirmada" class="alert alert-success" style="display: none;">
-                            <strong>Entrega confirmada</strong><br>
-                            Pedido entregado
+                            <strong>¡Repartidor asignado correctamente!</strong>
                         </div>
                     </div>
                 </div>
@@ -68,24 +72,7 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        function asignarRepartidor() {
-            const repartidorSeleccionado = document.querySelector('input[name="repartidor"]:checked');
-            
-            if (!repartidorSeleccionado) {
-                alert('Por favor selecciona un repartidor');
-                return;
-            }
-
-            // Mostrar estado de asignación
-            document.getElementById('repartidor-asignado').style.display = 'block';
-            
-            // Simular proceso de entrega
-            setTimeout(() => {
-                document.getElementById('repartidor-asignado').style.display = 'none';
-                document.getElementById('entrega-confirmada').style.display = 'block';
-            }, 5000);
-        }
-    </script>
+    <script src="../js/main.js"></script>
+    <script src="../js/admin.js"></script>
 </body>
 </html>

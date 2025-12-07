@@ -8,6 +8,17 @@
     <link href="../css/styles.css" rel="stylesheet">
 </head>
 <body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="../index.html">🍕 Admin</a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="panel-cocina.html">Cocina</a>
+                <a class="nav-link" href="reportes.html">Reportes</a>
+                <a class="nav-link" href="incidentes.html">Incidentes</a>
+            </div>
+        </div>
+    </nav>
+
     <div class="container-fluid min-vh-100 d-flex align-items-center justify-content-center bg-light">
         <div class="row w-100 justify-content-center">
             <div class="col-md-10 col-lg-8">
@@ -18,17 +29,25 @@
                                 <h3 class="mb-0">Tiempo de entrega estimado</h3>
                             </div>
                             <div class="card-body p-4">
+                                
+                                <div class="mb-4">
+                                    <label class="form-label fw-bold">Seleccionar Pedido:</label>
+                                    <select class="form-select" id="selectorPedidoTiempo" onchange="cargarDatosTiempo()">
+                                        <option value="">Cargando...</option>
+                                    </select>
+                                </div>
+
                                 <div class="mb-3">
-                                    <strong>Dirección:</strong> Evergreen 742
+                                    <strong>Dirección:</strong> <span id="direccionTiempo">...</span>
                                 </div>
                                 
                                 <div class="mb-3">
-                                    <strong>Distancia:</strong> 3,2 Km
+                                    <strong>Distancia calculada:</strong> <span id="distanciaTiempo">-</span>
                                 </div>
                                 
                                 <div class="mb-4">
                                     <strong>Demanda actual en cocina:</strong> 
-                                    <span class="badge bg-success">Baja</span>
+                                    <span class="badge bg-success" id="demandaBadge">Baja</span>
                                 </div>
 
                                 <div class="d-grid mb-4">
@@ -38,7 +57,7 @@
                                 </div>
 
                                 <div id="resultado-tiempo" class="alert alert-info" style="display: none;">
-                                    <h5>Tiempo estimado: <span id="tiempo-calculado">25-30 minutos</span></h5>
+                                    <h5>Tiempo estimado: <span id="tiempo-calculado">...</span></h5>
                                 </div>
                             </div>
                         </div>
@@ -52,25 +71,11 @@
                             <div class="card-body p-4">
                                 <div class="table-responsive">
                                     <table class="table table-striped">
-                                        <thead>
-                                            <tr>
-                                                <th>Demanda</th>
-                                                <th>Tiempo</th>
-                                            </tr>
-                                        </thead>
+                                        <thead><tr><th>Demanda</th><th>Tiempo</th></tr></thead>
                                         <tbody>
-                                            <tr class="table-success">
-                                                <td><strong>Baja</strong></td>
-                                                <td>20-30min</td>
-                                            </tr>
-                                            <tr class="table-warning">
-                                                <td><strong>Alta</strong></td>
-                                                <td>60-70min</td>
-                                            </tr>
-                                            <tr class="table-danger">
-                                                <td><strong>Muy alta</strong></td>
-                                                <td>+70min</td>
-                                            </tr>
+                                            <tr class="table-success"><td><strong>Baja</strong></td><td>20-30min</td></tr>
+                                            <tr class="table-warning"><td><strong>Alta</strong></td><td>60-70min</td></tr>
+                                            <tr class="table-danger"><td><strong>Muy alta</strong></td><td>+70min</td></tr>
                                         </tbody>
                                     </table>
                                 </div>
@@ -83,21 +88,7 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        function calcularTiempo() {
-            // Simular cálculo basado en demanda actual
-            const demandas = {
-                'baja': '20-30 minutos',
-                'alta': '60-70 minutos',
-                'muy_alta': '+70 minutos'
-            };
-            
-            // Para este ejemplo, usamos demanda baja
-            const tiempoEstimado = demandas['baja'];
-            
-            document.getElementById('tiempo-calculado').textContent = tiempoEstimado;
-            document.getElementById('resultado-tiempo').style.display = 'block';
-        }
-    </script>
+    <script src="../js/main.js"></script>
+    <script src="../js/admin.js"></script>
 </body>
 </html>
