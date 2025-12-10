@@ -1,6 +1,3 @@
-// frontend/js/admin.js
-// SIN la línea API_URL (ya está en main.js)
-
 document.addEventListener("DOMContentLoaded", () => {
     const path = window.location.pathname;
     
@@ -17,13 +14,13 @@ document.addEventListener("DOMContentLoaded", () => {
 let ordenesCargadas = [];
 let pedidoSeleccionadoId = null;
 
-// --- FUNCIÓN MAESTRA (Híbrida + Filtro Borrados) ---
+// FUNCIÓN(Híbrida + Filtro Borrados)
 async function fetchOrdenes() {
     const token = localStorage.getItem("token");
     let ordenesReales = [];
     let ordenesLocales = [];
 
-    // 1. Backend (Sin miedo al token)
+    // 1. Backend
     try {
         const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
         const res = await fetch(`${API_URL}/api/orders`, { headers });
@@ -45,59 +42,104 @@ async function fetchOrdenes() {
     return ordenesCargadas;
 }
 
-// --- GENERAR CSV (NUEVA FUNCIÓN REAL) ---
-function exportarCSV() {
-    if (ordenesCargadas.length === 0) {
-        alert("No hay datos para exportar.");
+// COCINA
+async function cargarCocina() {
+    const ordenes = await fetchOrdenes();
+    const tbody = document.querySelector("table tbody");
+    if(!tbody) return;
+    tbody.innerHTML = "";
+    
+    // Ordenamos: Recibidos primero para que sea más fácil gestionar
+    ordenes.sort((a, b) => {
+        const estados = { "Recibido": 1, "Preparación": 2, "En Horno": 2, "Reparto": 3, "Entregado": 4 };
+        return (estados[a.estado] || 99) - (estados[b.estado] || 99);
+    });
+
+    ordenes.forEach(o => {
+        const id = String(o.id || o._id);
+        const estado = o.estado || 'Recibido';
+        
+        let badge = 'bg-secondary';
+        if(estado === 'Recibido') badge = 'bg-primary';
+        else if(estado === 'Preparación' || estado === 'En Horno') badge = 'bg-warning text-dark';
+        else if(estado === 'Reparto' || estado === 'En Reparto') badge = 'bg-info text-dark';
+        else if(estado === 'Entregado') badge = 'bg-success';
+        
+        tbody.innerHTML += `
+            <tr>
+                <td class="fw-bold">#${id.slice(-5)}</td>
+                <td><span class="badge ${badge}">${estado}</span></td>
+                <td>
+                    <button class="btn btn-sm btn-primary me-1" onclick="avanzarEstado('${id}')">Avanzar ➡️</button>
+                    <button class="btn btn-sm btn-danger" onclick="eliminarPedido('${id}')">×</button>
+                </td>
+            </tr>`;
+    });
+}
+
+// NUEVA FUNCIÓN: AVANZAR ESTADO (CONECTADA AL BACKEND)
+window.avanzarEstado = async function(id) {
+    // 1. Buscamos el pedido en la lista cargada
+    const pedido = ordenesCargadas.find(o => String(o.id || o._id) === String(id));
+    
+    if (!pedido) {
+        alert("Pedido no encontrado en memoria.");
         return;
     }
 
-    // 1. Crear encabezados del Excel/CSV
-    let csvContent = "data:text/csv;charset=utf-8,";
-    csvContent += "ID Pedido,Fecha,Cliente,Direccion,Total,Estado\n"; // Títulos
+    const estadoActual = pedido.estado || "Recibido";
+    let nuevoEstado = "";
 
-    // 2. Llenar filas con los datos
-    ordenesCargadas.forEach(o => {
-        // Limpiamos comas en los textos para que no rompan las columnas
-        const id = String(o.id || o._id);
-        const fecha = o.fecha ? o.fecha.slice(0, 10) : "Hoy";
-        const cliente = (o.cliente || "Cliente Web").replace(/,/g, ""); 
-        const direccion = (o.direccion || "Retiro").replace(/,/g, " "); 
-        const total = o.total;
-        const estado = o.estado || "Recibido";
+    // 2. Máquina de estados
+    if (estadoActual === "Recibido") nuevoEstado = "Preparación";
+    else if (estadoActual === "Preparación" || estadoActual === "En Horno") nuevoEstado = "Reparto";
+    else if (estadoActual === "Reparto" || estadoActual === "En Reparto") nuevoEstado = "Entregado";
+    else {
+        alert("Este pedido ya está finalizado.");
+        return;
+    }
 
-        // Armamos la línea
-        const row = `${id},${fecha},${cliente},${direccion},${total},${estado}`;
-        csvContent += row + "\n";
-    });
+    // 3. Enviar actualización al Backend
+    try {
+        const token = localStorage.getItem("token");
+        const res = await fetch(`${API_URL}/api/orders/${id}`, {
+            method: 'PUT',
+            headers: { 
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ estado: nuevoEstado })
+        });
 
-    // 3. Crear enlace invisible y darle clic
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", "reporte_ventas_pizzeria.csv");
-    document.body.appendChild(link); // Necesario para Firefox
+        if (res.ok) {
+            // Éxito: Recargamos la tabla para ver el cambio
+            await cargarCocina(); 
+        } else {
+            // Si falla el backend, intentamos actualizar localmente por sia caso
+            console.warn("Backend falló, intentando local...");
+            actualizarLocal(id, nuevoEstado);
+        }
+    } catch (e) {
+        console.error("Error de red:", e);
+        actualizarLocal(id, nuevoEstado);
+    }
+};
+
+// Función auxiliar para actualizar localStorage (Plan B)
+function actualizarLocal(id, nuevoEstado) {
+    let locales = JSON.parse(localStorage.getItem("pedidos_db")) || [];
+    const idx = locales.findIndex(p => String(p.id) === String(id));
     
-    link.click(); // ¡Clic automático!
-    document.body.removeChild(link); // Limpieza
+    if(idx !== -1) {
+        locales[idx].estado = nuevoEstado;
+        localStorage.setItem("pedidos_db", JSON.stringify(locales));
+        cargarCocina(); // Refrescar
+    } else {
+        alert("No se pudo actualizar el estado.");
+    }
 }
 
-// --- LOGICA SELECTORES ---
-async function llenarSelectoresAdmin(idSelector) {
-    const ordenes = await fetchOrdenes();
-    const select = document.getElementById(idSelector);
-    if(!select) return;
-    
-    select.innerHTML = '<option value="">-- Selecciona un pedido --</option>';
-    
-    ordenes.forEach(o => {
-        const id = o.id || o._id;
-        const nombre = `Pedido #${String(id).slice(-5)} ($${o.total})`;
-        select.innerHTML += `<option value="${id}">${nombre}</option>`;
-    });
-}
-
-// --- REPORTES ---
+// REPORTES
 async function cargarReportes() {
     const ordenes = await fetchOrdenes();
     const tbody = document.querySelector("table tbody");
@@ -118,31 +160,7 @@ async function cargarReportes() {
     });
 }
 
-// --- COCINA ---
-async function cargarCocina() {
-    const ordenes = await fetchOrdenes();
-    const tbody = document.querySelector("table tbody");
-    if(!tbody) return;
-    tbody.innerHTML = "";
-    
-    ordenes.forEach(o => {
-        const id = String(o.id || o._id);
-        const estado = o.estado || 'Recibido';
-        let badge = estado === 'Recibido' ? 'bg-primary' : (estado === 'Preparación' ? 'bg-warning text-dark' : 'bg-success');
-        
-        tbody.innerHTML += `
-            <tr>
-                <td class="fw-bold">#${id.slice(-5)}</td>
-                <td><span class="badge ${badge}">${estado}</span></td>
-                <td>
-                    <button class="btn btn-sm btn-primary me-1" onclick="avanzarEstado('${id}')">Avanzar</button>
-                    <button class="btn btn-sm btn-danger" onclick="eliminarPedido('${id}')">×</button>
-                </td>
-            </tr>`;
-    });
-}
-
-// --- INCIDENTES ---
+// INCIDENTES
 async function cargarIncidentes() {
     const ordenes = await fetchOrdenes();
     const lista = document.querySelector(".list-group");
@@ -165,7 +183,47 @@ async function cargarIncidentes() {
     });
 }
 
-// --- FUNCIONES ACCIÓN ---
+// GENERAR CSV
+function exportarCSV() {
+    if (ordenesCargadas.length === 0) {
+        alert("No hay datos para exportar.");
+        return;
+    }
+    let csvContent = "data:text/csv;charset=utf-8,";
+    csvContent += "ID Pedido,Fecha,Cliente,Direccion,Total,Estado\n"; 
+    ordenesCargadas.forEach(o => {
+        const id = String(o.id || o._id);
+        const fecha = o.fecha ? o.fecha.slice(0, 10) : "Hoy";
+        const cliente = (o.cliente || "Cliente Web").replace(/,/g, ""); 
+        const direccion = (o.direccion || "Retiro").replace(/,/g, " "); 
+        const total = o.total;
+        const estado = o.estado || "Recibido";
+        const row = `${id},${fecha},${cliente},${direccion},${total},${estado}`;
+        csvContent += row + "\n";
+    });
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "reporte_ventas_pizzeria.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+// LOGICA SELECTORES
+async function llenarSelectoresAdmin(idSelector) {
+    const ordenes = await fetchOrdenes();
+    const select = document.getElementById(idSelector);
+    if(!select) return;
+    select.innerHTML = '<option value="">-- Selecciona un pedido --</option>';
+    ordenes.forEach(o => {
+        const id = o.id || o._id;
+        const nombre = `Pedido #${String(id).slice(-5)} ($${o.total})`;
+        select.innerHTML += `<option value="${id}">${nombre}</option>`;
+    });
+}
+
+// FUNCIONES ACCIÓN
 window.eliminarPedido = function(id) {
     if(confirm("¿Ocultar este pedido?")) {
         let listaNegra = JSON.parse(localStorage.getItem("pedidos_eliminados")) || [];
@@ -173,21 +231,6 @@ window.eliminarPedido = function(id) {
         localStorage.setItem("pedidos_eliminados", JSON.stringify(listaNegra));
         alert("Pedido eliminado.");
         location.reload();
-    }
-};
-
-window.avanzarEstado = function(id) {
-    let locales = JSON.parse(localStorage.getItem("pedidos_db")) || [];
-    const idx = locales.findIndex(p => String(p.id) === String(id));
-    if(idx !== -1) {
-        const act = locales[idx].estado;
-        if(act==="Recibido") locales[idx].estado="Preparación";
-        else if(act==="Preparación") locales[idx].estado="Reparto";
-        else if(act==="Reparto") locales[idx].estado="Entregado";
-        localStorage.setItem("pedidos_db", JSON.stringify(locales));
-        location.reload(); 
-    } else {
-        alert("Estado actualizado (Simulación visual).");
     }
 };
 
@@ -213,23 +256,20 @@ window.anularPedido = function() {
     if(confirm("¿Anular pedido?")) eliminarPedido(pedidoSeleccionadoId);
 };
 
-// --- TIEMPOS & REPARTIDOR ---
+// TIEMPOS Y REPARTIDOR
 window.cargarDatosTiempo = function() {
     const select = document.getElementById("selectorPedidoTiempo");
     const pedido = ordenesCargadas.find(o => String(o.id || o._id) === select.value);
-    
     if(pedido) {
         document.getElementById("direccionTiempo").textContent = pedido.direccion;
         const dist = (Math.random() * (5.9 - 2.1) + 2.1).toFixed(1);
         document.getElementById("distanciaTiempo").textContent = `${dist} Km`;
-
         const demandas = [
             { label: "Baja", class: "bg-success", time: "25-35 min" },
             { label: "Alta", class: "bg-warning text-dark", time: "50-60 min" },
             { label: "Muy alta", class: "bg-danger", time: "+70 min" }
         ];
         const random = demandas[Math.floor(Math.random() * demandas.length)];
-        
         const badge = document.getElementById("demandaBadge");
         badge.textContent = random.label;
         badge.className = `badge ${random.class}`;
@@ -242,7 +282,6 @@ window.calcularTiempo = function() {
     const btn = document.querySelector("button[onclick='calcularTiempo()']");
     const badge = document.getElementById("demandaBadge");
     if(!badge) return;
-    
     btn.disabled = true;
     btn.textContent = "Calculando...";
     setTimeout(() => {
@@ -267,14 +306,10 @@ window.cargarDatosAsignacion = function() {
 window.asignarRepartidor = function() {
     const select = document.getElementById("selectorPedidoAsignar");
     if(!select.value) { alert("Selecciona un pedido"); return; }
-    
-    // Validar radio buttons
     const radios = document.querySelectorAll('input[name="repartidor"]');
     let seleccionado = false;
     radios.forEach(r => { if(r.checked) seleccionado = true; });
-    
     if(!seleccionado) { alert("Selecciona un repartidor"); return; }
-
     document.getElementById("repartidor-asignado").style.display = 'block';
     setTimeout(() => {
         document.getElementById("repartidor-asignado").style.display = 'none';

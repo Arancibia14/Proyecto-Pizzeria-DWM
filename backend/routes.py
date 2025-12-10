@@ -7,7 +7,7 @@ import datetime
 # Creamos el "router" para las rutas
 router = APIRouter()
 
-# --- 1. Auth ---
+# 1. Auth
 @router.post("/api/auth/register", status_code=201)
 async def register(user: UsuarioRegister):
     existente = await usuario_collection.find_one({"email": user.email})
@@ -25,7 +25,7 @@ async def login(user: UsuarioLogin):
         return {"mensaje": "Login exitoso", "token": "fake-jwt-token-atlas", "rol": usuario_db["rol"]}
     raise HTTPException(status_code=401, detail="Credenciales inválidas")
 
-# --- 2. Catálogo ---
+# 2. Catálogo
 @router.get("/api/products", response_model=List[Pizza])
 async def get_catalogo():
     pizzas = []
@@ -40,7 +40,7 @@ async def get_producto_detalle(pizza_id: int):
         return pizza_helper(pizza)
     raise HTTPException(status_code=404, detail="Pizza no encontrada")
 
-# --- 3. Pedidos ---
+# 3. Pedidos
 @router.post("/api/orders/create", status_code=201)
 async def crear_pedido(pedido: PedidoCreate):
     count = await pedido_collection.count_documents({})
@@ -58,7 +58,7 @@ async def crear_pedido(pedido: PedidoCreate):
     await pedido_collection.insert_one(nuevo_pedido)
     return {"mensaje": "Pedido creado en Atlas ☁️", "order_id": nuevo_id}
 
-# --- 4. Admin ---
+# 4. Admin
 @router.get("/api/admin/orders")
 async def get_all_orders():
     pedidos = []

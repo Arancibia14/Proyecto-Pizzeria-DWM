@@ -52,7 +52,7 @@ async function handleLogin(e) {
     }
 }
 
-// REGISTRO REAL (Ahora sí guarda en MongoDB)
+// REGISTRO REAL (Guarda en MongoDB)
 async function handleRegister(e) {
     e.preventDefault();
     const email = document.getElementById("email").value;

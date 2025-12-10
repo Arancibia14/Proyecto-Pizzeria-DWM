@@ -1,6 +1,3 @@
-// frontend/js/checkout.js
-// SIN la línea API_URL (ya está en main.js)
-
 // Detectar si estamos en la página de pago para cargar el resumen
 document.addEventListener("DOMContentLoaded", () => {
     if (window.location.pathname.includes("pago.html")) {
@@ -8,16 +5,16 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 });
 
-// --- LÓGICA DE COSTOS ---
+// LÓGICA DE COSTOS
 function calcularCostoEnvio() {
-    // Genera un costo entre 1000 y 3000, redondeado a la centena (ej: 1200, 2500)
+    // Genera un costo entre 1000 y 3000, redondeado a la centena.
     const min = 1000;
     const max = 3000;
     let costo = Math.floor(Math.random() * (max - min + 1)) + min;
     return Math.floor(costo / 100) * 100;
 }
 
-// 1. VALIDAR COBERTURA (En direccion-entrega.html)
+// 1. VALIDAR COBERTURA
 function validarCobertura() {
     const input = document.getElementById("direccionInput");
     const direccion = input.value;
@@ -57,7 +54,7 @@ function validarCobertura() {
     }, 800);
 }
 
-// 2. SELECCIONAR DIRECCIÓN (En direccion-entrega.html)
+// 2. SELECCIONAR DIRECCIÓN
 function seleccionarDireccion() {
     const input = document.getElementById("direccionInput");
     const costo = localStorage.getItem("costoEnvio");
@@ -71,12 +68,12 @@ function seleccionarDireccion() {
     }
 }
 
-// --- NUEVA FUNCIÓN: CARGAR RESUMEN (En pago.html) ---
+// FUNCIÓN CARGAR RESUMEN
 function cargarResumenPago() {
     const carrito = JSON.parse(localStorage.getItem("carrito")) || [];
     const costoEnvio = parseInt(localStorage.getItem("costoEnvio")) || 0;
     
-    // Elementos del DOM en pago.html
+    // Elementos del DOM
     const container = document.querySelector(".cart-items"); 
     const totalEl = document.getElementById("cartTotal");
 
@@ -109,7 +106,7 @@ function cargarResumenPago() {
     totalEl.textContent = `$${totalFinal}`;
 }
 
-// 3. PAGAR CON WEBPAY (Híbrido: Real + Respaldo Local)
+// 3. Pagar con WEBPAY (Hibrido: Real + Respaldo Local)
 async function pagarWebpay() {
     const carrito = JSON.parse(localStorage.getItem("carrito"));
     const token = localStorage.getItem("token");
@@ -166,7 +163,7 @@ async function pagarWebpay() {
     } catch (error) {
         console.warn("Backend falló, activando Modo Camuflaje Local:", error);
         
-        // INTENTO B: MODO VIDEO (LOCAL)
+        // INTENTO B: LOCAL
         const idProfesional = Math.floor(10000 + Math.random() * 90000).toString();
         
         ordenData.id = idProfesional;

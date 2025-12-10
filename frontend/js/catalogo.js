@@ -1,6 +1,3 @@
-// frontend/js/catalogo.js
-// SIN la línea API_URL (ya está en main.js)
-
 let todasLasPizzas = [];
 let categoriaActual = 'todas';
 
@@ -26,18 +23,16 @@ async function cargarCatalogo() {
     }
 }
 
-// NUEVA FUNCIÓN: Filtrar por botón de categoría
+// Función de filtrado por botones
 function filtrarCategoria(categoria) {
     categoriaActual = categoria;
     
-    // Actualizar estilo visual de los botones (Pintar el activo)
+    // Estilos visuales botones
     const botones = document.querySelectorAll('#filtrosCategoria .btn');
     botones.forEach(btn => {
-        // Quitamos clases activas a todos
         btn.classList.remove('btn-primary', 'active');
         btn.classList.add('btn-outline-primary');
         
-        // Si es el botón que tocamos, lo activamos
         if(btn.textContent.includes(categoria) || (categoria === 'todas' && btn.textContent === 'Todas')) {
             btn.classList.remove('btn-outline-primary');
             btn.classList.add('btn-primary', 'active');
@@ -57,32 +52,34 @@ function configurarBuscador() {
     
     if(btnClear) btnClear.addEventListener("click", () => {
         if(input) input.value = "";
-        filtrarCategoria('todas'); // Resetea todo
+        filtrarCategoria('todas');
     });
 }
 
-// FUNCIÓN MAESTRA: Combina el buscador de texto Y la categoría seleccionada
 function aplicarFiltrosCombinados() {
     const input = document.getElementById("searchInput");
     const termino = input.value.toLowerCase();
     
     const filtradas = todasLasPizzas.filter(pizza => {
-        // 1. ¿Coincide el nombre?
         const coincideTexto = pizza.nombre.toLowerCase().includes(termino);
-        
-        // 2. ¿Coincide la categoría? (Si es 'todas', pasa siempre)
-        // Nota: Aseguramos que pizza.categoria exista para no dar error
         const catPizza = pizza.categoria || ""; 
         const coincideCategoria = categoriaActual === 'todas' || catPizza.includes(categoriaActual);
-        
         return coincideTexto && coincideCategoria;
     });
 
     renderizarPizzas(filtradas);
 }
 
-function obtenerNombreImagen(nombre) {
-    return nombre.toLowerCase().replace("pizza", "").replace(/\s+/g, '').replace(/[^a-z0-9]/g, '');
+// Función para obtener la imagen correcta
+function obtenerRutaImagen(pizza) {
+    // 1. Si la base de datos tiene el nombre exacto del archivo usarlo
+    if (pizza.imagen && pizza.imagen.trim() !== "") {
+        return `../imagenes/${pizza.imagen}`;
+    }
+    
+    // 2. Si no tiene campo imagen, intentamos generarlo (Plan B)
+    const nombreGenerado = pizza.nombre.toLowerCase().replace("pizza", "").replace(/\s+/g, '').replace(/[^a-z0-9]/g, '');
+    return `../imagenes/${nombreGenerado}.webp`;
 }
 
 function renderizarPizzas(lista) {
@@ -96,9 +93,9 @@ function renderizarPizzas(lista) {
 
     lista.forEach(pizza => {
         const id = pizza.id || pizza._id;
-        const nombreImg = obtenerNombreImagen(pizza.nombre);
-        // Usamos .webp como pediste
-        const rutaImagen = `../imagenes/${nombreImg}.webp`; 
+        
+        // USAMOS LA NUEVA LÓGICA DE IMAGEN
+        const rutaImagen = obtenerRutaImagen(pizza);
         
         const card = `
         <div class="col-md-4 mb-4 fade-in">

@@ -1,6 +1,3 @@
-// frontend/js/producto.js
-// SIN la línea API_URL
-
 document.addEventListener("DOMContentLoaded", () => {
     cargarDetalle();
 });
@@ -31,7 +28,7 @@ async function cargarDetalle() {
         document.getElementById("productDescription").textContent = pizzaActual.descripcion;
         document.getElementById("productPrice").textContent = `Valor: $${pizzaActual.precio}`;
         
-        // Imagen (.webp)
+        // Imagen
         const nombreImg = obtenerNombreImagen(pizzaActual.nombre);
         const imgContainer = document.querySelector(".product-image-placeholder");
         

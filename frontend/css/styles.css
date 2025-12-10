@@ -1,6 +1,4 @@
-/* Estilos personalizados para la Pizzería */
-
-/* Variables CSS para colores consistentes */
+/* Variables CSS */
 :root {
   --primary-color: #dc3545;
   --secondary-color: #6c757d;
@@ -22,7 +20,7 @@ body {
   color: var(--dark-color);
 }
 
-/* Navbar personalizado */
+/* Navbar */
 .navbar-brand {
   font-size: 1.5rem;
 }
@@ -76,7 +74,7 @@ body {
   border-color: var(--primary-color);
 }
 
-/* Botones personalizados */
+/* Botones */
 .btn-primary {
   background-color: var(--primary-color);
   border-color: var(--primary-color);
@@ -103,13 +101,13 @@ body {
   opacity: 1;
 }
 
-/* Alertas personalizadas */
+/* Alertas */
 .alert {
   border: none;
   border-radius: 10px;
 }
 
-/* Badges personalizados */
+/* Badges */
 .badge {
   font-size: 0.8em;
   padding: 0.5em 0.8em;
@@ -184,7 +182,7 @@ body {
   }
 }
 
-/* Grid System personalizado */
+/* Grid System */
 .custom-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -229,7 +227,7 @@ footer {
   text-wrap: balance;
 }
 
-/* Estados de validación personalizados */
+/* Estados de validación */
 .is-invalid {
   border-color: var(--danger-color);
 }

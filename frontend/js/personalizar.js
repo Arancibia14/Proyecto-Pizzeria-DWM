@@ -1,7 +1,4 @@
-// frontend/js/personalizar.js
-// SIN la línea API_URL (ya está en main.js)
-
-let precioBasePizza = 0; // Aquí guardaremos el valor de la pizza (ej: 8000)
+let precioBasePizza = 0; // Aquí guardaremos el valor de la pizza
 let pizzaInfo = null;
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -22,7 +19,7 @@ async function inicializar() {
             const res = await fetch(`${API_URL}/api/products/${id}`);
             if(res.ok) {
                 pizzaInfo = await res.json();
-                precioBasePizza = pizzaInfo.precio; // Ej: 8000
+                precioBasePizza = pizzaInfo.precio;
                 titulo.textContent = `Personalizar: ${pizzaInfo.nombre}`;
             } else {
                 console.warn("No se encontró la pizza, usando valores por defecto.");
@@ -40,7 +37,7 @@ async function inicializar() {
         titulo.textContent = "Personalizar Pizza";
     }
 
-    // --- CORRECCIÓN CLAVE: ACTUALIZAR EL VISUAL DEL PRECIO BASE ---
+    // Actualizar el visual del precio base
     if(basePriceEl) {
         basePriceEl.textContent = `$${precioBasePizza}`;
     }
@@ -59,22 +56,22 @@ async function inicializar() {
         });
     }
 
-    // Calcular totales iniciales (para que sume el tamaño seleccionado por defecto)
+    // Calcular totales iniciales
     calcularTotal();
 }
 
 function calcularTotal() {
-    let total = precioBasePizza; // Partimos de los 8.000 (o lo que cueste)
+    let total = precioBasePizza; 
     let extrasTotal = 0;
 
-    // 1. Sumar Tamaño (M=0, L=2000, XL=4000)
+    // 1. Sumar Tamaño
     const size = document.querySelector('input[name="size"]:checked');
     if (size) {
         const precioSize = parseInt(size.getAttribute('data-price') || 0);
         total += precioSize;
     }
 
-    // 2. Sumar Extras (Queso, Jamón, etc)
+    // 2. Sumar Extras
     const extras = document.querySelectorAll('input[type="checkbox"]:checked');
     extras.forEach(ex => {
         const precioEx = parseInt(ex.getAttribute('data-price') || 0);
@@ -83,7 +80,6 @@ function calcularTotal() {
     });
 
     // 3. Actualizar HTML
-    // Nota: No tocamos "basePrice" aquí porque ese es fijo de la pizza
     document.getElementById("extrasPrice").textContent = `+ $${extrasTotal}`;
     document.getElementById("totalPrice").textContent = `$${total}`;
 }

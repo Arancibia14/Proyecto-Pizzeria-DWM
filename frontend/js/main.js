@@ -1,5 +1,3 @@
-// frontend/js/main.js
-
 // DEFINICIÓN GLOBAL DE LA URL DEL BACKEND
 const API_URL = 'http://127.0.0.1:8000'; 
 
@@ -9,7 +7,7 @@ document.addEventListener("DOMContentLoaded", () => {
     initializeNavigation();
 });
 
-// --- GESTIÓN DE SESIÓN ---
+// GESTIÓN DE SESIÓN
 function verificarSesion() {
     const token = localStorage.getItem("token");
     const navLogin = document.querySelector("a[href*='login.html']");
@@ -30,7 +28,7 @@ function verificarSesion() {
     }
 }
 
-// FUNCIÓN CORREGIDA: Redirección inteligente
+// Funcion Redirección inteligente
 function cerrarSesion() {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
@@ -38,16 +36,15 @@ function cerrarSesion() {
     // Detectamos en qué ruta estamos
     const rutaActual = window.location.pathname;
     
-    // Si estamos dentro de carpetas 'paginas' o 'admin', tenemos que subir un nivel
     if (rutaActual.includes("/paginas/") || rutaActual.includes("/admin/")) {
         window.location.href = "../index.html";
     } else {
-        // Si ya estamos en la raíz (index.html), recargamos la página o vamos a index
+        // recargamos la página o vamos a index
         window.location.href = "index.html";
     }
 }
 
-// --- UTILIDADES GLOBALES ---
+// UTILIDADES GLOBALES
 function actualizarContadorCarrito() {
     const countBadge = document.getElementById("cart-count");
     if (countBadge) {

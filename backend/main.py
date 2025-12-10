@@ -6,7 +6,7 @@ from orders import router as orders_router # <--- IMPORTAMOS EL NUEVO ARCHIVO
 
 app = FastAPI()
 
-# --- CONFIGURACIÓN CORS ---
+# CONFIGURACIÓN CORS
 origins = ["*"]
 app.add_middleware(
     CORSMiddleware,
@@ -16,15 +16,15 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# --- CONECTAR LOS ROUTERS ---
-app.include_router(products_router) # Tus rutas de productos/auth
-app.include_router(orders_router)   # <--- ACTIVAMOS LA RUTA DE PEDIDOS
+# CONECTAR LOS ROUTERS
+app.include_router(products_router) 
+app.include_router(orders_router)   #ACTIVAMOS LA RUTA DE PEDIDOS
 
 @app.get("/")
 def home():
     return {"mensaje": "API Pizzería La Fornacce - Backend Funcionando 🍕"}
 
-# --- EVENTO DE INICIO (Base de Datos) ---
+# INICIO (Base de Datos)
 @app.on_event("startup")
 async def startup_db_client():
     # Verificamos si hay pizzas, si no, creamos las base

@@ -1,6 +1,3 @@
-// frontend/js/seguimiento.js
-// SIN la línea API_URL (ya está en main.js)
-
 document.addEventListener("DOMContentLoaded", () => {
     cargarSeguimiento();
 });
@@ -8,72 +5,101 @@ document.addEventListener("DOMContentLoaded", () => {
 async function cargarSeguimiento() {
     const params = new URLSearchParams(window.location.search);
     const idUrl = params.get('id');
-    const token = localStorage.getItem("token"); // Lo leemos por si acaso, pero no es obligatorio
+    const token = localStorage.getItem("token");
     const cardBody = document.querySelector(".card-body");
 
-    // --- 1. Lógica para buscar ID si no viene en URL ---
     let idParaBuscar = idUrl;
+
+    // CASO 1: No hay ID en la URL (Entraste desde el menú)
     if (!idParaBuscar) {
-        // Intenta buscar el último pedido local (video demo)
+        
+        // A. Intentamos buscar en el historial Local (Memoria navegador)
         const historial = JSON.parse(localStorage.getItem("pedidos_db")) || [];
+        
         if (historial.length > 0) {
-            const ultimo = historial[historial.length - 1];
-            renderizarDatos(ultimo);
+            // Si hay historial local, usamos el último
+            const ultimoLocal = historial[historial.length - 1];
+            renderizarDatos(ultimoLocal);
             return;
-        } else {
-            // Si no hay local, mostramos mensaje de vacío
-             cardBody.innerHTML = `<div class="text-center py-5"><h4>No hay pedidos recientes para rastrear</h4><a href="catalogo.html" class="btn btn-primary mt-3">Ir a comprar</a></div>`;
-            return;
+        } 
+        
+        // B. PLAN DE RESPALDO (NUEVO): Si borraste caché, buscamos el último en el Backend
+        try {
+            const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
+            const res = await fetch(`${API_URL}/api/orders`, { headers });
+            
+            if (res.ok) {
+                const todosLosPedidos = await res.json();
+                if (todosLosPedidos.length > 0) {
+                    // Tomamos el último pedido registrado en la base de datos
+                    const ultimoRemoto = todosLosPedidos[todosLosPedidos.length - 1];
+                    // Normalizamos el ID 
+                    ultimoRemoto.id = ultimoRemoto.id || ultimoRemoto._id;
+                    renderizarDatos(ultimoRemoto);
+                    return;
+                }
+            }
+        } catch (e) {
+            console.log("No se pudo recuperar del backend automático");
         }
+
+        // C. Si falló todo (Local y Backend vacío)
+        cardBody.innerHTML = `
+            <div class="text-center py-5">
+                <div class="display-1 text-muted mb-3">📭</div>
+                <h4>No tienes pedidos recientes</h4>
+                <p class="text-muted">Aún no has realizado ninguna compra en esta sesión.</p>
+                <a href="catalogo.html" class="btn btn-primary mt-3">Ir al Catálogo</a>
+            </div>`;
+        return;
     }
 
-    // --- 2. Buscar en Backend (AHORA SIN IF TOKEN) ---
+    // CASO 2: Hay ID en la URL
     try {
         const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
-        
         const response = await fetch(`${API_URL}/api/orders/${idParaBuscar}`, { headers });
 
         if (response.ok) {
             const pedidoReal = await response.json();
             pedidoReal.id = pedidoReal._id || pedidoReal.id;
             renderizarDatos(pedidoReal);
-            return; // ¡Encontrado! Salimos.
+            return;
+        } else {
+            throw new Error("No encontrado en backend");
         }
+
     } catch (error) {
-        console.warn("No se encontró en backend o error de conexión:", error);
-    }
+        // Si falla backend, intentamos local como último recurso
+        const pedidosLocales = JSON.parse(localStorage.getItem("pedidos_db")) || [];
+        const pedidoLocal = pedidosLocales.find(p => String(p.id) === String(idParaBuscar));
 
-    // --- 3. Buscar en Local (Fallback) ---
-    const pedidosLocales = JSON.parse(localStorage.getItem("pedidos_db")) || [];
-    const pedidoLocal = pedidosLocales.find(p => String(p.id) === String(idParaBuscar));
-
-    if (pedidoLocal) {
-        renderizarDatos(pedidoLocal);
-    } else {
-        // Si no está ni en backend ni en local
-        cardBody.innerHTML = `
-            <div class="alert alert-danger text-center">
-                <h4>Pedido #${idParaBuscar.slice(-5)} no encontrado</h4>
-                <p>No pudimos localizar la información.</p>
-                <a href="catalogo.html" class="btn btn-outline-primary">Volver al inicio</a>
-            </div>`;
+        if (pedidoLocal) {
+            renderizarDatos(pedidoLocal);
+        } else {
+            cardBody.innerHTML = `
+                <div class="alert alert-danger text-center">
+                    <h4>Pedido no encontrado</h4>
+                    <p>No pudimos localizar la información del pedido #${idParaBuscar.slice(-5)}.</p>
+                    <a href="catalogo.html" class="btn btn-outline-primary">Volver al inicio</a>
+                </div>`;
+        }
     }
 }
 
 function renderizarDatos(datos) {
     const cardBody = document.querySelector(".card-body");
     
-    // Lógica visual
     let badgeColor = "info";
     let mensajeEstado = "Hemos recibido tu pedido.";
     let progreso = 25;
     const estado = datos.estado || "Recibido";
 
-    if (estado === "Preparación") {
+    // Lógica visual de estados
+    if (estado === "Preparación" || estado === "En Horno") {
         badgeColor = "warning";
         mensajeEstado = "Tu pizza está en el horno 🔥";
         progreso = 50;
-    } else if (estado === "Reparto") {
+    } else if (estado === "Reparto" || estado === "En Reparto") {
         badgeColor = "primary";
         mensajeEstado = "El repartidor va en camino 🛵";
         progreso = 75;
@@ -81,10 +107,13 @@ function renderizarDatos(datos) {
         badgeColor = "success";
         mensajeEstado = "¡A disfrutar! 🍕";
         progreso = 100;
+    } else if (estado === "Anulado" || estado === "Cancelado") {
+        badgeColor = "danger";
+        mensajeEstado = "El pedido ha sido cancelado.";
+        progreso = 0;
     }
 
-    // ID Limpio (mostramos solo los últimos caracteres si es muy largo)
-    const idDisplay = String(datos.id).length > 10 ? '...' + String(datos.id).slice(-6) : datos.id;
+    const idDisplay = String(datos.id).slice(-6); // Mostrar solo últimos 6 dígitos
 
     cardBody.innerHTML = `
         <div class="text-center mb-4">
@@ -95,7 +124,7 @@ function renderizarDatos(datos) {
         <div class="border rounded p-3 mb-4 bg-light shadow-sm">
             <div class="row mb-2">
                 <div class="col-sm-4 fw-bold">Pedido N°:</div>
-                <div class="col-sm-8 font-monospace fs-5">#${idDisplay}</div>
+                <div class="col-sm-8 font-monospace fs-5">#...${idDisplay}</div>
             </div>
             <div class="row mb-2">
                 <div class="col-sm-4 fw-bold">Estado:</div>
@@ -105,7 +134,7 @@ function renderizarDatos(datos) {
             </div>
             <div class="row mb-2">
                 <div class="col-sm-4 fw-bold">Dirección:</div>
-                <div class="col-sm-8">${datos.direccion}</div>
+                <div class="col-sm-8">${datos.direccion || 'Retiro en local'}</div>
             </div>
             <div class="row">
                 <div class="col-sm-4 fw-bold">Total:</div>

@@ -3,7 +3,7 @@ from typing import List, Optional
 from enum import Enum
 from datetime import datetime
 
-# --- ENUMS (Igual a tu diagrama) ---
+# ENUMS de diagrama de API contract
 class Rol(str, Enum):
     CLIENTE = "cliente"
     ADMINISTRADOR = "admin"
@@ -25,7 +25,7 @@ class CategoriaPizza(str, Enum):
     GOURMET = "Gourmet"
     PROMOCION = "Promoción"
 
-# --- SCHEMAS ---
+# MODELOS de diagrama de API contract
 
 class UsuarioLogin(BaseModel):
     email: str
